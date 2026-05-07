@@ -1,10 +1,84 @@
-import google.generativeai as genai
-import pdfkit
+import time
+
+from google import genai
+from weasyprint import HTML
+from google.genai import types
+import os
 
 
-# Load Gemini API key
-genai.configure(api_key="AIzaSyBKmQ3zca2Ad1FCXes45_RIs1M9clJ4VHw")
+API_KEY = os.environ.get("GOOGLE_API_KEY")
 
+if not API_KEY:
+    raise ValueError("GOOGLE_API_KEY not found.")
+
+client = genai.Client(api_key=API_KEY)
+
+# ---------- Sample Resume Upload ----------
+
+SAMPLE_RESUME_PATH = os.path.join(
+    os.path.dirname(__file__),
+    "sample_resume.pdf"
+)
+
+uploaded_template = None
+
+try:
+
+    uploaded_template = client.files.upload(
+        file=SAMPLE_RESUME_PATH,
+        config=types.UploadFileConfig(
+            mime_type="application/pdf"
+        )
+    )
+
+    print("Processing sample resume template...")
+
+    max_retries = 15
+    retries = 0
+
+    while uploaded_template.state.name == "PROCESSING":
+
+        if retries >= max_retries:
+
+            print(
+                "Template processing timeout. "
+                "Proceeding without template."
+            )
+
+            uploaded_template = None
+            break
+
+        time.sleep(2)
+
+        uploaded_template = client.files.get(
+            name=uploaded_template.name
+        )
+
+        retries += 1
+
+    if (
+        uploaded_template and
+        uploaded_template.state.name == "FAILED"
+    ):
+
+        print(
+            "Template processing failed. "
+            "Proceeding without template."
+        )
+
+        uploaded_template = None
+
+    elif uploaded_template:
+
+        print("Sample resume template ready.")
+
+except Exception as e:
+
+    print(
+        f"Template upload failed: {e}"
+    )
+
+    uploaded_template = None
 
 def prompt_gemini(resume_text: str, keywords: list) -> str:
     prompt = f"""
@@ -25,7 +99,7 @@ def prompt_gemini(resume_text: str, keywords: list) -> str:
        - Have a section heading in **font size 16px**, bold, with a bottom border (like a horizontal line).
        - Content in **font size 12px**, aligned to the **left** or **justified** for longer text.
        - Some content like experience/projects may use bullet points.
-    5. The entire resume must be in **Arial** font.
+    5. The entire resume must be in **Times New Roman** font.
     6. Use margins/padding suitable for a clean resume look. Space out sections slightly.
     7. The page size should be **A4 dimensions (2480 x 3508 pixels)** in CSS.
     8. **Do not include any CSS or content that may prevent the file from being converted to PDF.**
@@ -34,34 +108,40 @@ def prompt_gemini(resume_text: str, keywords: list) -> str:
     11. Do not include any dates in the final resume, only bolden the required sideheadings.
     12. Do not include any unnecessary sections in the resume other than the ones in this list - Name & Personal Information, Objective (if already in the resume DO NOT include if it isn't), Skills (very importantly), Education, Experience, Awards/Honours.
     13. Please correct any, and all spelling / grammatic errors in the resume - considering British English as the standard.
+    14. The formatting of the final document should be exactly like the sample resume template attached.
     
     
     Your output should only be the complete HTML document — starting from '<!DOCTYPE html>' to '</html>'.
     Respond ONLY with raw HTML — starting from '<!DOCTYPE html>' to '</html>', without any commentary, markdown formatting, explanation, or code blocks.
     """
-    model = genai.GenerativeModel("gemini-1.5-flash-latest")
-    response = model.generate_content(prompt)
-    return response.text.strip()
 
+    response = client.models.generate_content(
+        model="gemini-1.5-flash",
+        contents=(
+            [uploaded_template, prompt]
+            if uploaded_template
+            else [prompt]
+        ),
+        config=types.GenerateContentConfig(
+            temperature=0.3,
+            top_p=0.8
+        )
+    )
+
+    if not response.text:
+        raise ValueError(
+            "Gemini returned empty response."
+        )
+
+    html = response.text.strip()
+    html = html.replace("```html", "").replace("```", "").strip()
+
+    return html
 
 def generate_pdf_from_html(html_content: str, output_path="final_resume.pdf"):
-    # Path to your local wkhtmltopdf.exe file
-    config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
-
-    options = {
-        "page-size": "A4",
-        "encoding": "UTF-8",
-        "margin-top": "10mm",
-        "margin-bottom": "10mm",
-        "margin-left": "10mm",
-        "margin-right": "10mm",
-        "dpi": 300,
-        "zoom": "1.3",  # makes the content scale up a bit
-        "enable-local-file-access": "",
-    }
-
     try:
-        pdfkit.from_string(html_content, output_path, configuration=config, options=options)
-        print("✅ PDF successfully generated:", output_path)
+        HTML(string=html_content).write_pdf(output_path)
+        print(f"PDF generated successfully: {output_path}")
     except Exception as e:
-        print("❌ Error generating PDF:", e)
+        print("Error generating PDF:", e)
+        raise
