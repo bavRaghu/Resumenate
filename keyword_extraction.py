@@ -2,24 +2,8 @@ from keybert import KeyBERT
 import spacy
 import re
 
-
-try:
-    nlp = spacy.load("en_core_web_sm")
-
-except OSError:
-
-    raise RuntimeError(
-        "spaCy model missing.\n"
-        "Run:\n"
-        "python -m spacy download en_core_web_sm"
-    )
-
-
-# ---------- KeyBERT Model ----------
-
-kw_model = KeyBERT(
-    model="all-MiniLM-L6-v2"
-)
+nlp = None
+kw_model = None
 
 
 # ---------- Keyword Deduplication ----------
@@ -59,6 +43,17 @@ def extract_keywords_with_rules(
     top_n=25,
     min_score=0.4
 ) -> list:
+    global nlp
+    global kw_model
+    
+    if nlp is None:
+        nlp = spacy.load("en_core_web_sm")
+
+    if kw_model is None:
+        kw_model = KeyBERT(
+            model="all-MiniLM-L6-v2"
+        )
+
 
     text = text.lower()
 

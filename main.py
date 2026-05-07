@@ -99,8 +99,7 @@ def enhance_resume():
         return jsonify({
             "keywords": keyword_list,
             "match_percent": match_percent,
-            "download_url":
-                f"http://127.0.0.1:5000/files/{output_filename}"
+            "download_url": f"/files/{output_filename}"
         })
 
     except Exception as e:

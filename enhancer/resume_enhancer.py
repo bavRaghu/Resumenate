@@ -204,28 +204,28 @@ def generate_resume_html(
 
                 <div class="section">
                     <div class="section-title">Education</div>
-                    <p>{format_bullets(education)}</p>
+                    {format_bullets(education)}
                 </div>
 
                 <div class="section">
                     <div class="section-title">Skills</div>
-                    <p>{format_bullets(skills)}</p>
+                    {format_bullets(skills)}
                 </div>
 
 
                 <div class="section">
                     <div class="section-title">Experience</div>
-                    <p>{format_bullets(experience)}</p>
+                    {format_bullets(experience)}
                 </div>
 
                 <div class="section">
                     <div class="section-title">Projects</div>
-                    <p>{format_bullets(projects)}</p>
+                    {format_bullets(projects)}
                 </div>
 
                 <div class="section">
                     <div class="section-title">Awards</div>
-                    <p>{format_bullets(awards)}</p>
+                    {format_bullets(awards)}
                 </div>
 
                 </body>
