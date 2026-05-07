@@ -1,85 +1,19 @@
-import time
-
-from google import genai
 from weasyprint import HTML
-from google.genai import types
+
+from openai import OpenAI
 import os
 
-API_KEY = os.environ.get("GOOGLE_API_KEY")
+from dotenv import load_dotenv
+load_dotenv()
 
-if not API_KEY:
-    raise ValueError("GOOGLE_API_KEY not found.")
-
-client = genai.Client(api_key=API_KEY)
-
-# ---------- Sample Resume Upload ----------
-
-SAMPLE_RESUME_PATH = os.path.join(
-    os.path.dirname(__file__),
-    "sample_resume.pdf"
+client = OpenAI(
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1"
 )
 
-uploaded_template = None
-
-try:
-
-    uploaded_template = client.files.upload(
-        file=SAMPLE_RESUME_PATH,
-        config=types.UploadFileConfig(
-            mime_type="application/pdf"
-        )
-    )
-
-    print("Processing sample resume template...")
-
-    max_retries = 15
-    retries = 0
-
-    while uploaded_template.state.name == "PROCESSING":
-
-        if retries >= max_retries:
-
-            print(
-                "Template processing timeout. "
-                "Proceeding without template."
-            )
-
-            uploaded_template = None
-            break
-
-        time.sleep(2)
-
-        uploaded_template = client.files.get(
-            name=uploaded_template.name
-        )
-
-        retries += 1
-
-    if (
-        uploaded_template and
-        uploaded_template.state.name == "FAILED"
-    ):
-
-        print(
-            "Template processing failed. "
-            "Proceeding without template."
-        )
-
-        uploaded_template = None
-
-    elif uploaded_template:
-
-        print("Sample resume template ready.")
-
-except Exception as e:
-
-    print(
-        f"Template upload failed: {e}"
-    )
-
-    uploaded_template = None
-
-def prompt_gemini(resume_text: str, keywords: list) -> str:
+def prompt_deepseek(resume_text: str, keywords: list) -> str:
+    resume_text = resume_text[:5000]
+    keywords = keywords[:20]
     prompt = f"""
     You are a professional resume designer. Return ONLY a raw HTML file (not markdown, not explanation).
     
@@ -107,33 +41,32 @@ def prompt_gemini(resume_text: str, keywords: list) -> str:
     11. Do not include any dates in the final resume, only bolden the required sideheadings.
     12. Do not include any unnecessary sections in the resume other than the ones in this list - Name & Personal Information, Objective (if already in the resume DO NOT include if it isn't), Skills (very importantly), Education, Experience, Awards/Honours.
     13. Please correct any, and all spelling / grammatic errors in the resume - considering British English as the standard.
-    14. The formatting of the final document should be exactly like the sample resume template attached.
     
     
     Your output should only be the complete HTML document — starting from '<!DOCTYPE html>' to '</html>'.
     Respond ONLY with raw HTML — starting from '<!DOCTYPE html>' to '</html>', without any commentary, markdown formatting, explanation, or code blocks.
     """
 
-    response = client.models.generate_content(
-        model="gemini-1.5-flash",
-        contents=(
-            [uploaded_template, prompt]
-            if uploaded_template
-            else [prompt]
-        ),
-        config=types.GenerateContentConfig(
-            temperature=0.3,
-            top_p=0.8
-        )
-    )
+    response = client.chat.completions.create(
+    model="deepseek/deepseek-chat-v3-0324:free",
+    messages=[
+        {
+            "role": "user",
+            "content": prompt
+        }
+    ],
+    temperature=0.3
+)
 
-    if not response.text:
-        raise ValueError(
-            "Gemini returned empty response."
-        )
+    html = response.choices[0].message.content
 
-    html = response.text.strip()
-    html = html.replace("```html", "").replace("```", "").strip()
+    html = html.replace(
+        "```html",
+        ""
+    ).replace(
+        "```",
+        ""
+    ).strip()
 
     return html
 
