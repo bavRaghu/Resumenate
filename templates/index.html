@@ -186,11 +186,23 @@ form.addEventListener("submit", async function (e) {
   formData.append("resume", resumeFile);
   formData.append("job_description", jobDesc);
 
-  const response = await fetch("http://127.0.0.1:8000/enhance", {
-    method: "POST",
-    body: formData
-  });
+  let response;
 
+  try {
+
+    response = await fetch("/enhance", {
+      method: "POST",
+      body: formData
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    alert("Could not connect to backend.");
+
+    return;
+  }
   if (!response.ok) {
     alert("Something went wrong during enhancement.");
     return;
