@@ -3,238 +3,551 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Resumenate: AI-Powered Resume Enhancer</title>
+  <title>Resumenate</title>
+
   <style>
-    body {
+
+    * {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background-color: #f7f7f7;
-    }
-
-    h1 {
-      text-align: center;
-      color: #006d77;
-      font-size: 2rem;
-      margin: 30px 0;
-    }
-
-    .container {
-      display: flex;
-      justify-content: center;
-      gap: 0;
-      max-width: 95%;
-      margin: auto;
-      padding: 0 10px 40px 10px;
-    }
-
-    .about,
-    .form-container {
-      flex: 1;
-      padding: 30px;
-      border-radius: 5px;
-    }
-
-    .about {
-      background-color: #3e8ca4;
-      color: white;
-      border: 3px solid black;
-      border-right: none;
-    }
-
-    .form-container {
-      background-color: #b0b0b0;
-      border: 3px solid black;
-      border-left: none;
-    }
-
-    .about h2,
-    .form-container h2 {
-      font-size: 1.5rem;
-      margin-bottom: 20px;
-      font-weight: bold;
-    }
-
-    .form-box {
-      background-color: white;
-      padding: 25px;
-      border-radius: 5px;
-      border: 2px solid black;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 10px;
-      font-weight: 600;
-      color: #333;
-    }
-
-    input[type="file"],
-    textarea {
-      width: 100%;
-      padding: 10px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      margin-bottom: 20px;
+      padding: 0;
       box-sizing: border-box;
     }
 
-    textarea {
+    body {
+      font-family: Inter, Arial, sans-serif;
+      background: #f7f7fc;
+      color: #1e1e2f;
+    }
+
+    /* ---------- NAVBAR ---------- */
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      padding: 18px 60px;
+
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(10px);
+
+      border-bottom: 1px solid #e4e4f2;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-box {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      background: linear-gradient(
+        135deg,
+        #c4b5fd,
+        #93c5fd
+      );
+    }
+
+    .logo-text {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #312e81;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #4c4f69;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #6366f1;
+    }
+
+    /* ---------- MAIN ---------- */
+
+    .main-section {
+      min-height: calc(100vh - 80px);
+
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+
+      padding: 60px;
+      gap: 40px;
+    }
+
+    .left-panel,
+    .right-panel {
+      background: white;
+      border-radius: 24px;
+      padding: 40px;
+
+      box-shadow:
+        0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    /* ---------- LEFT ---------- */
+
+    .left-panel h1 {
+      font-size: 2.7rem;
+      line-height: 1.2;
+      color: #312e81;
+
+      margin-bottom: 20px;
+    }
+
+    .left-panel p {
+      color: #5b5f7a;
+      line-height: 1.8;
+      margin-bottom: 30px;
+      font-size: 1rem;
+    }
+
+    .left-panel textarea {
+      width: 100%;
+      min-height: 320px;
+
+      border: 1px solid #d8d8f0;
+      border-radius: 18px;
+
+      padding: 18px;
+
       resize: vertical;
-      height: 100px;
+
+      font-size: 0.96rem;
+      line-height: 1.6;
+
+      background: #fafaff;
+      color: #1f2937;
+    }
+
+    /* ---------- RIGHT ---------- */
+
+    .right-panel h2 {
+      font-size: 1.8rem;
+      color: #312e81;
+      margin-bottom: 12px;
+    }
+
+    .right-panel p {
+      color: #5b5f7a;
+      margin-bottom: 28px;
+      line-height: 1.7;
+    }
+
+    .upload-box {
+      border: 2px dashed #c7d2fe;
+      border-radius: 20px;
+
+      padding: 40px 25px;
+
+      text-align: center;
+
+      background: #f9f9ff;
+
+      margin-bottom: 25px;
+    }
+
+    .upload-box input {
+      margin-top: 15px;
+    }
+
+    .resume-name {
+      margin-top: 15px;
+      color: #6366f1;
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+
+    /* ---------- BUTTONS ---------- */
+
+    .button-group {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
     }
 
     button {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      background-color: #006d77;
-      color: white;
       border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+      border-radius: 14px;
 
-    button:hover {
-      background-color: #00545b;
-    }
-
-    #results {
-      margin-top: 20px;
       padding: 15px;
-      background-color: #f0f0f0;
-      border: 2px solid #006d77;
-      border-radius: 8px;
+
+      font-size: 1rem;
+      font-weight: 600;
+
+      cursor: pointer;
+
+      transition: 0.2s;
     }
 
-    #results h3,
-    #results h4 {
-      margin-bottom: 10px;
+    .primary-btn {
+      background: linear-gradient(
+        135deg,
+        #312e81
+      );
+
+      color: white;
     }
 
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
+    .primary-btn:hover {
+      opacity: 0.92;
+    }
 
-      .about,
-      .form-container {
-        border: none;
-        border-radius: 0;
-      }
+    .secondary-btn {
+      background: #eef2ff;
+      color: #4338ca;
+    }
 
-      .form-container {
-        margin-top: 20px;
+    .secondary-btn:hover {
+      background: #e0e7ff;
+    }
+
+    button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    /* ---------- STATUS ---------- */
+
+    .status-box {
+      margin-top: 22px;
+
+      display: none;
+      align-items: center;
+
+      padding: 15px;
+
+      border-radius: 14px;
+
+      background: #eef2ff;
+
+      color: #4338ca;
+
+      border: 1px solid #c7d2fe;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+
+      border: 3px solid #c7d2fe;
+      border-top: 3px solid #6366f1;
+
+      border-radius: 50%;
+
+      margin-right: 12px;
+
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
       }
     }
+
+    /* ---------- RESPONSIVE ---------- */
+
+    @media (max-width: 900px) {
+
+      .main-section {
+        grid-template-columns: 1fr;
+        padding: 30px 20px;
+      }
+
+      .navbar {
+        padding: 18px 20px;
+      }
+
+      .left-panel h1 {
+        font-size: 2rem;
+      }
+
+      .logo-img {
+        width: 42px;
+        height: 42px;
+        object-fit: contain;
+      }
+
+    }
+
   </style>
 </head>
+
 <body>
-  <h1>Resumenate: AI-Powered Resume Enhancer</h1>
-  <div class="container">
-    <div class="about">
-      <h2>About Resumenate</h2>
-      <p>
-        Resumenate is an AI-powered platform designed to assist job seekers in enhancing their resumes, thereby increasing their chances of securing employment. The platform optimizes resumes by analyzing content, tailoring vocabulary and structure to effectively navigate Applicant Tracking Systems (ATS) commonly used by top companies. Additionally, it compares the user’s resume with those of successful professionals in similar roles, identifying key skills, courses, and experiences to recommend, helping users strengthen their qualifications.
-        With an intuitive, easy-to-use interface, Resumenate allows users to upload and refine their resumes, providing personalized suggestions to make their profiles more compelling to potential employers. By leveraging these advanced features, Resumenate empowers job seekers to present their best selves and improve their prospects of landing desired jobs.
-      </p>
-    </div>
-    <div class="form-container">
-      <h2>Enhance Your Resume</h2>
-      <div class="form-box">
-        <form id="resumeForm">
-          <label for="resume">Upload Your Resume (PDF or DOCX):</label>
-          <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx,.txt" required>
 
-          <label for="job_description">Job Description:</label>
-          <textarea id="job_description" name="job_description" placeholder="Paste the job description here..." required></textarea>
+<!-- NAVBAR -->
 
-          <button type="submit" id="enhanceBtn">Enhance Resume</button>
+<nav class="navbar">
 
-        </form>
+  <div class="logo-section">
 
-        <div id="results" style="display: none;">
+    <!-- Replace this div with actual logo later -->
+    <p class="logo-text">
+      Resumenate
+    </p>
+    
 
-          <h4>Recommendations:</h4>
-          <ul id="recommendations"></ul>
-          <a id="downloadLink" href="#" target="_blank" download>
-            <button style="margin-top: 10px;">Download Enhanced Resume</button>
-          </a>
-        </div>
-      </div>
-    </div>
+
   </div>
 
-  <script>
-    const form = document.getElementById("resumeForm");
-    const resultsBox = document.getElementById("results");
-    const recList = document.getElementById("recommendations");
-    const downloadLink = document.getElementById("downloadLink");
+</nav>
 
-form.addEventListener("submit", async function (e) {
-  e.preventDefault();
+<!-- MAIN -->
 
-  const resumeFile = document.getElementById("resume").files[0];
-  const jobDesc = document.getElementById("job_description").value;
+<section class="main-section">
 
-  if (!resumeFile || !jobDesc) {
-    alert("Please upload a resume and enter a job description.");
-    return;
+  <!-- LEFT -->
+
+  <div class="left-panel">
+
+    <h1>
+      Build ATS-Optimized Resumes
+    </h1>
+
+    <p>
+      Paste the target job description and upload your
+      existing resume to generate a professionally enhanced,
+      ATS-friendly version tailored for the role.
+    </p>
+
+    <textarea
+      id="job_description"
+      placeholder="Paste the job description here..."
+    ></textarea>
+
+  </div>
+
+  <!-- RIGHT -->
+
+  <div class="right-panel">
+
+    <h2>
+      Upload Resume
+    </h2>
+
+    <p>
+      Upload your current resume in PDF or DOCX format.
+      Resumenate will analyze your resume, extract keywords,
+      and generate an optimized professional version.
+    </p>
+
+    <div class="upload-box">
+
+      <div>
+        Upload Resume
+      </div>
+
+      <input
+        type="file"
+        id="resume"
+        accept=".pdf,.docx"
+      >
+
+      <div
+        class="resume-name"
+        id="resumeName"
+      ></div>
+
+    </div>
+
+    <div class="button-group">
+
+      <button
+        class="primary-btn"
+        id="enhanceBtn"
+      >
+        Enhance Resume
+      </button>
+
+    </div>
+
+    <!-- STATUS -->
+
+    <div
+      class="status-box"
+      id="statusBox"
+    >
+
+      <div class="spinner"></div>
+
+      <div id="statusText">
+        Analyzing resume...
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+<script>
+
+const resumeInput =
+  document.getElementById("resume");
+
+const resumeName =
+  document.getElementById("resumeName");
+
+const enhanceBtn =
+  document.getElementById("enhanceBtn");
+
+const statusBox =
+  document.getElementById("statusBox");
+
+const statusText =
+  document.getElementById("statusText");
+
+const loadingMessages = [
+  "Analyzing resume...",
+  "Extracting ATS keywords...",
+  "Optimizing resume...",
+  "Generating formatted resume...",
+  "Rendering PDF..."
+];
+
+resumeInput.addEventListener(
+  "change",
+  () => {
+
+    if (resumeInput.files[0]) {
+
+      resumeName.textContent =
+        resumeInput.files[0].name;
+    }
+
   }
+);
 
-  const formData = new FormData();
-  formData.append("resume", resumeFile);
-  formData.append("job_description", jobDesc);
+enhanceBtn.addEventListener(
+  "click",
+  async () => {
 
-  let response;
+    const resumeFile =
+      resumeInput.files[0];
 
-  try {
+    const jobDesc =
+      document.getElementById(
+        "job_description"
+      ).value;
 
-    response = await fetch("/enhance", {
-      method: "POST",
-      body: formData
-    });
+    if (!resumeFile || !jobDesc) {
 
-  } catch (error) {
+      alert(
+        "Please upload a resume and paste a job description."
+      );
 
-    console.error(error);
+      return;
+    }
 
-    alert("Could not connect to backend.");
+    enhanceBtn.disabled = true;
 
-    return;
+    enhanceBtn.textContent =
+      "Processing...";
+
+    statusBox.style.display = "flex";
+
+    let messageIndex = 0;
+
+    const interval = setInterval(() => {
+
+      messageIndex =
+        (messageIndex + 1)
+        % loadingMessages.length;
+
+      statusText.textContent =
+        loadingMessages[messageIndex];
+
+    }, 2000);
+
+    const formData = new FormData();
+
+    formData.append(
+      "resume",
+      resumeFile
+    );
+
+    formData.append(
+      "job_description",
+      jobDesc
+    );
+
+    try {
+
+      const response = await fetch(
+        "/enhance",
+        {
+          method: "POST",
+          body: formData
+        }
+      );
+
+      clearInterval(interval);
+
+      if (!response.ok) {
+
+        const errorText =
+          await response.text();
+
+        alert(errorText);
+
+        enhanceBtn.disabled = false;
+
+        enhanceBtn.textContent =
+          "Enhance Resume";
+
+        statusBox.style.display = "none";
+
+        return;
+      }
+
+      const data =
+        await response.json();
+
+      localStorage.setItem(
+        "resumeData",
+        JSON.stringify(data)
+      );
+
+      window.location.href =
+        "/results";
+
+    } catch (error) {
+
+      clearInterval(interval);
+
+      console.error(error);
+
+      alert(
+        "Could not connect to backend."
+      );
+
+      enhanceBtn.disabled = false;
+
+      enhanceBtn.textContent =
+        "Enhance Resume";
+
+      statusBox.style.display = "none";
+    }
+
   }
-  if (!response.ok) {
+);
 
-  const errorText = await response.text();
+</script>
 
-  console.error(errorText);
-
-  alert(errorText);
-
-  return;
-}
-
-  const data = await response.json();
-
-  const matchDiv = document.createElement("div");
-  matchDiv.innerHTML = `<h4>Match Percentage: ${data.match_percent}%</h4>`;
-  document.getElementById("results").prepend(matchDiv);
-
-  recList.innerHTML = "";
-  data.keywords.forEach(kw => {
-    const li = document.createElement("li");
-    li.textContent = kw;
-    recList.appendChild(li);
-  });
-
-  downloadLink.href = data.download_url;
-  downloadLink.target = "_blank";
-
-  resultsBox.style.display = "block";
-});
-
-  </script>
 </body>
 </html>
-
-
