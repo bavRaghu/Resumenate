@@ -20,15 +20,26 @@ def generate_resume_html(
     keywords = keywords[:20]
 
     prompt = f"""
-                You are a professional ATS resume writer.
+                You are an expert ATS resume writer and career coach.
 
-                Your task:
-                - Improve and rewrite the resume professionally
-                - Naturally incorporate relevant keywords
-                - Correct grammar and wording
-                - Keep content concise and impactful
-                - Do NOT invent fake experience/projects
-                - Return ONLY structured resume content
+                Your task is to professionally enhance and rewrite the resume content.
+
+                IMPORTANT GOALS:
+                - Make the resume sound stronger, more technical, and more impactful
+                - Expand weak or short bullet points into meaningful professional descriptions
+                - Naturally integrate relevant ATS keywords from the provided keyword list
+                - Improve wording, grammar, clarity, and professionalism
+                - Add strong action verbs and technical phrasing
+                - Make the candidate sound competent and technically skilled
+                - Keep the content realistic and aligned with the original resume
+                - You MAY improve and elaborate existing experience/project descriptions substantially
+                - Do NOT leave sections empty or overly short
+
+                VERY IMPORTANT:
+                - The output should contain substantial content under each section
+                - Skills should contain multiple technologies/tools
+                - Experience and Projects should contain detailed bullet points
+                - The keywords should appear naturally throughout the resume
 
                 RETURN YOUR RESPONSE IN THIS EXACT FORMAT:
 
@@ -41,15 +52,19 @@ def generate_resume_html(
                 SKILLS:
                 - ...
                 - ...
+                - ...
 
                 EDUCATION:
+                - ...
                 - ...
 
                 EXPERIENCE:
                 - ...
                 - ...
+                - ...
 
                 PROJECTS:
+                - ...
                 - ...
                 - ...
 
@@ -63,7 +78,6 @@ def generate_resume_html(
                 Keywords:
                 {', '.join(keywords)}
             """
-
     response = client.chat.completions.create(
         model="openai/gpt-3.5-turbo",
         messages=[
@@ -101,7 +115,23 @@ def generate_resume_html(
     projects = extract_section("PROJECTS")
     awards = extract_section("AWARDS")
 
-    # ---------- Fixed HTML Template ----------
+    def format_bullets(text):
+
+        lines = [
+            line.strip("- ").strip()
+            for line in text.split("\n")
+            if line.strip()
+        ]
+
+        if not lines:
+            return ""
+
+        html_lines = "".join(
+            f"<li>{line}</li>"
+            for line in lines
+        )
+
+        return f"<ul>{html_lines}</ul>"
 
     html = f"""
                 <!DOCTYPE html>
@@ -173,28 +203,29 @@ def generate_resume_html(
                 </div>
 
                 <div class="section">
-                    <div class="section-title">Skills</div>
-                    <p>{skills.replace(chr(10), "<br>")}</p>
+                    <div class="section-title">Education</div>
+                    <p>{format_bullets(education)}</p>
                 </div>
 
                 <div class="section">
-                    <div class="section-title">Education</div>
-                    <p>{education.replace(chr(10), "<br>")}</p>
+                    <div class="section-title">Skills</div>
+                    <p>{format_bullets(skills)}</p>
                 </div>
+
 
                 <div class="section">
                     <div class="section-title">Experience</div>
-                    <p>{experience.replace(chr(10), "<br>")}</p>
+                    <p>{format_bullets(experience)}</p>
                 </div>
 
                 <div class="section">
                     <div class="section-title">Projects</div>
-                    <p>{projects.replace(chr(10), "<br>")}</p>
+                    <p>{format_bullets(projects)}</p>
                 </div>
 
                 <div class="section">
                     <div class="section-title">Awards</div>
-                    <p>{awards.replace(chr(10), "<br>")}</p>
+                    <p>{format_bullets(awards)}</p>
                 </div>
 
                 </body>
