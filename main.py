@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, render_template
 from flask_cors import CORS
 
 import os
@@ -22,6 +22,10 @@ UPLOAD_FOLDER = "generated_resumes"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
+@app.route("/")
+def home():
+    return render_template("index.html")
+
 @app.route("/files/<filename>")
 def download_file(filename):
     return send_from_directory(
@@ -29,7 +33,6 @@ def download_file(filename):
         filename,
         as_attachment=True
     )
-
 
 @app.route("/enhance", methods=["POST"])
 def enhance_resume():
@@ -105,4 +108,4 @@ def enhance_resume():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)

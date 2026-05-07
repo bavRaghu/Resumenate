@@ -5,7 +5,6 @@ from weasyprint import HTML
 from google.genai import types
 import os
 
-
 API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 if not API_KEY:
