@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
+
+  <title>Resume Results</title>
+
+  <style>
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Inter, Arial, sans-serif;
+      background: #f7f7fc;
+      color: #1e1e2f;
+      min-height: 100vh;
+    }
+
+/* ---------- NAVBAR ---------- */
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      padding: 18px 60px;
+
+      background:#F9F9FF;
+      backdrop-filter: blur(10px);
+
+      border-bottom: 1px solid #e4e4f2;
+    }
+
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-text {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #312e81;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #4c4f69;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #6366f1;
+    }
+
+    /* ---------- MAIN ---------- */
+
+    .container {
+      max-width: 1050px;
+      margin: auto;
+      padding: 50px 20px;
+    }
+
+    .card {
+      background: white;
+
+      border-radius: 22px;
+
+      padding: 35px;
+
+      margin-bottom: 28px;
+
+      border: 1px solid #ececf3;
+
+      box-shadow:
+        0 8px 24px rgba(0,0,0,0.04);
+    }
+
+    /* ---------- SCORE ---------- */
+
+    .score-title {
+      font-size: 2.1rem;
+      color: #312e81;
+      margin-bottom: 12px;
+    }
+
+    .score-subtitle {
+      color: #6b7280;
+      line-height: 1.7;
+      margin-bottom: 30px;
+    }
+
+    .score-value {
+      font-size: 4rem;
+      font-weight: 700;
+      color: #312e81;
+      margin-bottom: 20px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 16px;
+
+      border-radius: 999px;
+
+      background: #e5e7eb;
+
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      width: 0%;
+      height: 100%;
+
+      background: #312e81;
+
+      transition: width 1s ease;
+    }
+
+    /* ---------- SECTION ---------- */
+
+    .section-title {
+      font-size: 1.5rem;
+      color: #312e81;
+      margin-bottom: 22px;
+    }
+
+    /* ---------- KEYWORDS ---------- */
+
+    .keywords-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .keyword-pill {
+      padding: 10px 16px;
+
+      border-radius: 999px;
+
+      background: #eef2ff;
+
+      color: #312e81;
+
+      font-size: 0.93rem;
+      font-weight: 500;
+    }
+
+    /* ---------- BUTTONS ---------- */
+
+    .button-group {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+
+      margin-bottom: 28px;
+    }
+
+    .btn {
+      text-decoration: none;
+
+      padding: 14px 18px;
+
+      border-radius: 14px;
+
+      font-weight: 600;
+
+      transition: 0.2s;
+    }
+
+    .primary-btn {
+      background: #312e81;
+      color: white;
+    }
+
+    .primary-btn:hover {
+      opacity: 0.92;
+    }
+
+    .secondary-btn {
+      background: #eef2ff;
+      color: #312e81;
+    }
+
+    .secondary-btn:hover {
+      background: #e0e7ff;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+
+    /* ---------- RESPONSIVE ---------- */
+
+    @media (max-width: 900px) {
+
+      .navbar {
+        padding: 18px 20px;
+      }
+
+      .score-value {
+        font-size: 3rem;
+      }
+
+      .score-title {
+        font-size: 1.7rem;
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+<!-- NAVBAR -->
+
+<nav class="navbar">
+
+  <div class="logo-section">
+
+    <!-- Replace this div with actual logo later -->
+    <a class="logo-text" href="#">
+
+      Resumenate
+    </p>
+    
+  </div>
+
+</nav>
+
+<!-- MAIN -->
+
+<div class="container">
+
+  <!-- SCORE -->
+
+  <div class="card">
+
+    <div class="score-title">
+      Resume Analysis Complete
+    </div>
+
+    <div class="score-subtitle">
+      Your resume has been analyzed against the provided
+      job description and optimized for ATS systems.
+    </div>
+
+    <div
+      class="score-value"
+      id="scoreValue"
+    >
+      0%
+    </div>
+
+    <div class="progress-bar">
+
+      <div
+        class="progress-fill"
+        id="progressFill"
+      ></div>
+
+    </div>
+
+  </div>
+
+  <!-- KEYWORDS -->
+
+  <div class="card">
+
+    <div class="section-title">
+      ATS Keywords
+    </div>
+
+    <div
+      class="keywords-container"
+      id="keywordsContainer"
+    ></div>
+
+  </div>
+
+  <!-- RESUME -->
+
+  <div class="card">
+
+    <div class="section-title">
+      Enhanced Resume
+    </div>
+
+    <div class="button-group">
+
+
+      <a
+        id="previewBtn"
+        class="btn primary-btn"
+        target="_blank"
+      >
+        Preview Resume
+      </a>
+
+      <a
+        id="downloadBtn"
+        class="btn secondary-btn"
+      >
+        Download PDF
+      </a>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+const data = JSON.parse(
+  localStorage.getItem("resumeData")
+);
+
+if (!data) {
+
+  window.location.href = "/";
+}
+
+const scoreValue =
+  document.getElementById("scoreValue");
+
+const progressFill =
+  document.getElementById("progressFill");
+
+const keywordsContainer =
+  document.getElementById(
+    "keywordsContainer"
+  );
+
+const previewBtn =
+  document.getElementById("previewBtn");
+
+const downloadBtn =
+  document.getElementById("downloadBtn");
+
+const pdfFrame =
+  document.getElementById("pdfFrame");
+
+/* ---------- SCORE ---------- */
+
+scoreValue.textContent =
+  `${data.match_percent}%`;
+
+setTimeout(() => {
+
+  progressFill.style.width =
+    `${data.match_percent}%`;
+
+}, 200);
+
+/* ---------- KEYWORDS ---------- */
+
+(data.keywords || []).forEach(
+  (keyword) => {
+
+    const pill =
+      document.createElement("div");
+
+    pill.className =
+      "keyword-pill";
+
+    pill.textContent =
+      keyword;
+
+    keywordsContainer.appendChild(
+      pill
+    );
+
+  }
+);
+
+/* ---------- PDF ---------- */
+
+/* Preview button ONLY opens PDF */
+
+previewBtn.href =
+  data.download_url;
+
+/* Download button forces download */
+
+downloadBtn.href =
+  data.download_url;
+
+downloadBtn.setAttribute(
+  "download",
+  "enhanced_resume.pdf"
+);
+
+/* Embedded preview */
+
+pdfFrame.src =
+  data.download_url;
+
+</script>
+
+</body>
+</html>

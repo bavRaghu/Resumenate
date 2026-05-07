@@ -26,12 +26,15 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 def home():
     return render_template("index.html")
 
+@app.route("/results")
+def results_page():
+    return render_template("results.html")
+
 @app.route("/files/<filename>")
 def download_file(filename):
     return send_from_directory(
         UPLOAD_FOLDER,
-        filename,
-        as_attachment=True
+        filename
     )
 
 @app.route("/enhance", methods=["POST"])
