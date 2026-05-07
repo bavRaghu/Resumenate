@@ -11,62 +11,195 @@ client = OpenAI(
     base_url="https://openrouter.ai/api/v1"
 )
 
-def prompt_deepseek(resume_text: str, keywords: list) -> str:
+def generate_resume_html(
+    resume_text: str,
+    keywords: list
+) -> str:
+
     resume_text = resume_text[:5000]
     keywords = keywords[:20]
+
     prompt = f"""
-    You are a professional resume designer. Return ONLY a raw HTML file (not markdown, not explanation).
-    
-    Given the following resume:
-    {resume_text}
+                You are a professional ATS resume writer.
 
-    And the following keywords to include:
-    {', '.join(keywords)}
+                Your task:
+                - Improve and rewrite the resume professionally
+                - Naturally incorporate relevant keywords
+                - Correct grammar and wording
+                - Keep content concise and impactful
+                - Do NOT invent fake experience/projects
+                - Return ONLY structured resume content
 
-    Generate a complete HTML resume that consist of all of these keywords using the details provided below. The HTML should follow **these strict styling rules**:
-    
-    1. The output MUST include the aforementioned keywords, naturally while preserving professionalism. You may exclude any keywords that may seem unnecessary in the context, or too complex to include. The keywords must however, be incorporated in a seamless manner, and must be included in natural language. Do not lazily copy-paste all the keywords together in one section. Make it look natural, and enhance the readability of the resume.
-    2. The **name** of the candidate should be in font size 20px, bold, and **center-aligned**.
-    3. Contact details (email, phone, LinkedIn, location) should be directly below the name in **font size 12px**, **center-aligned**, and separated with vertical bars. DO NOT INCLUDE THE USER'S LINKEDIN EVEN IF IT HAS BEEN PROVIDED.
-    4. Each section (**Education**, **Technical Skills**, **Experience**, **Projects**, **Awards**) must:
-       - Have a section heading in **font size 16px**, bold, with a bottom border (like a horizontal line).
-       - Content in **font size 12px**, aligned to the **left** or **justified** for longer text.
-       - Some content like experience/projects may use bullet points.
-    5. The entire resume must be in **Times New Roman** font.
-    6. Use margins/padding suitable for a clean resume look. Space out sections slightly.
-    7. The page size should be **A4 dimensions (2480 x 3508 pixels)** in CSS.
-    8. **Do not include any CSS or content that may prevent the file from being converted to PDF.**
-    9. The page should be formatted for printing on A4 paper, with 1 inch margins on all sides, using font sizes in pt (not px).
-    10. Ensure that no parts are compressed like a web page — the layout must be spaced out like a printable resume.
-    11. Do not include any dates in the final resume, only bolden the required sideheadings.
-    12. Do not include any unnecessary sections in the resume other than the ones in this list - Name & Personal Information, Objective (if already in the resume DO NOT include if it isn't), Skills (very importantly), Education, Experience, Awards/Honours.
-    13. Please correct any, and all spelling / grammatic errors in the resume - considering British English as the standard.
-    
-    
-    Your output should only be the complete HTML document — starting from '<!DOCTYPE html>' to '</html>'.
-    Respond ONLY with raw HTML — starting from '<!DOCTYPE html>' to '</html>', without any commentary, markdown formatting, explanation, or code blocks.
-    """
+                RETURN YOUR RESPONSE IN THIS EXACT FORMAT:
+
+                NAME:
+                ...
+
+                CONTACT:
+                ...
+
+                SKILLS:
+                - ...
+                - ...
+
+                EDUCATION:
+                - ...
+
+                EXPERIENCE:
+                - ...
+                - ...
+
+                PROJECTS:
+                - ...
+                - ...
+
+                AWARDS:
+                - ...
+                - ...
+
+                Resume:
+                {resume_text}
+
+                Keywords:
+                {', '.join(keywords)}
+            """
 
     response = client.chat.completions.create(
-    model="deepseek/deepseek-chat-v3-0324:free",
-    messages=[
-        {
-            "role": "user",
-            "content": prompt
-        }
-    ],
-    temperature=0.3
-)
+        model="openai/gpt-3.5-turbo",
+        messages=[
+            {
+                "role": "user",
+                "content": prompt
+            }
+        ],
+        temperature=0.3
+    )
 
-    html = response.choices[0].message.content
+    content = response.choices[0].message.content.strip()
 
-    html = html.replace(
-        "```html",
-        ""
-    ).replace(
-        "```",
-        ""
-    ).strip()
+    # ---------- Parse Sections ----------
+
+    def extract_section(section_name):
+
+        import re
+
+        pattern = rf"{section_name}:\s*(.*?)(?=\n[A-Z ]+?:|\Z)"
+
+        match = re.search(
+            pattern,
+            content,
+            re.DOTALL
+        )
+
+        return match.group(1).strip() if match else ""
+
+    name = extract_section("NAME")
+    contact = extract_section("CONTACT")
+    skills = extract_section("SKILLS")
+    education = extract_section("EDUCATION")
+    experience = extract_section("EXPERIENCE")
+    projects = extract_section("PROJECTS")
+    awards = extract_section("AWARDS")
+
+    # ---------- Fixed HTML Template ----------
+
+    html = f"""
+                <!DOCTYPE html>
+                <html>
+
+                <head>
+                <meta charset="UTF-8">
+
+                <style>
+
+                @page {{
+                    size: A4;
+                    margin: 0.5in;
+                }}
+
+                body {{
+                    font-family: "Times New Roman", serif;
+                    font-size: 12px;
+                    line-height: 1.4;
+                    color: black;
+                }}
+
+                h1 {{
+                    text-align: center;
+                    font-size: 24px;
+                    margin-bottom: 5px;
+                }}
+
+                .contact {{
+                    text-align: center;
+                    font-size: 12px;
+                    margin-bottom: 20px;
+                }}
+
+                .section {{
+                    margin-top: 18px;
+                }}
+
+                .section-title {{
+                    font-size: 16px;
+                    font-weight: bold;
+                    border-bottom: 1px solid black;
+                    margin-bottom: 8px;
+                    padding-bottom: 2px;
+                }}
+
+                ul {{
+                    margin-top: 5px;
+                    padding-left: 18px;
+                }}
+
+                li {{
+                    margin-bottom: 5px;
+                }}
+
+                p {{
+                    margin: 0;
+                }}
+
+                </style>
+                </head>
+
+                <body>
+
+                <h1>{name}</h1>
+
+                <div class="contact">
+                    {contact}
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Skills</div>
+                    <p>{skills.replace(chr(10), "<br>")}</p>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Education</div>
+                    <p>{education.replace(chr(10), "<br>")}</p>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Experience</div>
+                    <p>{experience.replace(chr(10), "<br>")}</p>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Projects</div>
+                    <p>{projects.replace(chr(10), "<br>")}</p>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Awards</div>
+                    <p>{awards.replace(chr(10), "<br>")}</p>
+                </div>
+
+                </body>
+                </html>
+            """
 
     return html
 

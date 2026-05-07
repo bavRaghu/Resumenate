@@ -6,7 +6,7 @@ import uuid
 
 from enhancer.extractor import extract_text_from_file
 from enhancer.resume_enhancer import (
-    prompt_gemini,
+    generate_resume_html,
     generate_pdf_from_html
 )
 
@@ -74,7 +74,7 @@ def enhance_resume():
             (len(matched) / len(keyword_list)) * 100
         ) if keyword_list else 0
 
-        enhanced_html = prompt_gemini(
+        enhanced_html = generate_resume_html(
             resume_text,
             keyword_list
         )
@@ -101,6 +101,8 @@ def enhance_resume():
         })
 
     except Exception as e:
+
+        print("ERROR:", e)
 
         return jsonify({
             "error": str(e)

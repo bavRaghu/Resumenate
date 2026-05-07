@@ -204,9 +204,15 @@ form.addEventListener("submit", async function (e) {
     return;
   }
   if (!response.ok) {
-    alert("Something went wrong during enhancement.");
-    return;
-  }
+
+  const errorText = await response.text();
+
+  console.error(errorText);
+
+  alert(errorText);
+
+  return;
+}
 
   const data = await response.json();
 
