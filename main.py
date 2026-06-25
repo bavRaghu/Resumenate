@@ -79,7 +79,8 @@ def enhance_resume():
 
         enhanced_html = generate_resume_html(
             resume_text,
-            keyword_list
+            keyword_list,
+            job_description
         )
 
         output_filename = (
