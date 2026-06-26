@@ -39,77 +39,81 @@ def download_file(filename):
 
 @app.route("/enhance", methods=["POST"])
 def enhance_resume():
+    return jsonify({
+        "success": True,
+        "message": "Backend works!"
+    })
 
-    try:
-        if "resume" not in request.files:
-            return jsonify({
-                "error": "No resume uploaded"
-            }), 400
+    # try:
+    #     if "resume" not in request.files:
+    #         return jsonify({
+    #             "error": "No resume uploaded"
+    #         }), 400
 
-        resume = request.files["resume"]
-        job_description = request.form.get("job_description")
+    #     resume = request.files["resume"]
+    #     job_description = request.form.get("job_description")
 
-        if not job_description:
-            return jsonify({
-                "error": "Job description missing"
-            }), 400
+    #     if not job_description:
+    #         return jsonify({
+    #             "error": "Job description missing"
+    #         }), 400
 
-        extension = os.path.splitext(resume.filename)[1]
+    #     extension = os.path.splitext(resume.filename)[1]
 
-        temp_path = f"temp_{uuid.uuid4().hex}{extension}"
+    #     temp_path = f"temp_{uuid.uuid4().hex}{extension}"
 
-        resume.save(temp_path)
+    #     resume.save(temp_path)
 
-        resume_text = extract_text_from_file(temp_path)
+    #     resume_text = extract_text_from_file(temp_path)
 
-        os.remove(temp_path)
+    #     os.remove(temp_path)
 
-        keyword_list = extract_keywords_from_jobdesc(
-            job_description
-        )
+    #     keyword_list = extract_keywords_from_jobdesc(
+    #         job_description
+    #     )
 
-        matched = [
-            kw for kw in keyword_list
-            if kw.lower() in resume_text.lower()
-        ]
+    #     matched = [
+    #         kw for kw in keyword_list
+    #         if kw.lower() in resume_text.lower()
+    #     ]
 
-        match_percent = int(
-            (len(matched) / len(keyword_list)) * 100
-        ) if keyword_list else 0
+    #     match_percent = int(
+    #         (len(matched) / len(keyword_list)) * 100
+    #     ) if keyword_list else 0
 
-        enhanced_html = generate_resume_html(
-            resume_text,
-            keyword_list,
-            job_description
-        )
+    #     enhanced_html = generate_resume_html(
+    #         resume_text,
+    #         keyword_list,
+    #         job_description
+    #     )
 
-        output_filename = (
-            f"enhanced_{uuid.uuid4().hex}.pdf"
-        )
+    #     output_filename = (
+    #         f"enhanced_{uuid.uuid4().hex}.pdf"
+    #     )
 
-        output_path = os.path.join(
-            UPLOAD_FOLDER,
-            output_filename
-        )
+    #     output_path = os.path.join(
+    #         UPLOAD_FOLDER,
+    #         output_filename
+    #     )
 
-        generate_pdf_from_html(
-            enhanced_html,
-            output_path
-        )
+    #     generate_pdf_from_html(
+    #         enhanced_html,
+    #         output_path
+    #     )
 
-        return jsonify({
-            "keywords": keyword_list,
-            "match_percent": match_percent,
-            "download_url": f"/files/{output_filename}"
-        })
+    #     return jsonify({
+    #         "keywords": keyword_list,
+    #         "match_percent": match_percent,
+    #         "download_url": f"/files/{output_filename}"
+    #     })
 
-    except Exception as e:
+    # except Exception as e:
 
-        print("ERROR:", e)
+    #     print("ERROR:", e)
 
-        return jsonify({
-            "error": str(e)
-        }), 500
+    #     return jsonify({
+    #         "error": str(e)
+    #     }), 500
 
 
 if __name__ == "__main__":
