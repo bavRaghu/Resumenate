@@ -39,9 +39,13 @@ def download_file(filename):
 
 @app.route("/enhance", methods=["POST"])
 def enhance_resume():
+    resume_file = request.files["resume"]
+
+    resume_text = extract_text_from_file(resume_file)
+
     return jsonify({
         "success": True,
-        "message": "Backend works!"
+        "resume": resume_text[:300]
     })
 
     # try:
