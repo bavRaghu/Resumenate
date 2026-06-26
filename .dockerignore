@@ -1,0 +1,12 @@
+venv
+.venv
+__pycache__
+.git
+.gitignore
+.env
+generated_resumes
+uploads
+*.pyc
+*.pyo
+*.pyd
+*.log
